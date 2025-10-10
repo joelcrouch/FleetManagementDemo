@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36408.4 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FleetManagement.API", "FleetManagement.API.csproj", "{63F9714E-ED1B-4973-B00F-D0A07C1B2FBF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FleetManagement.Tests", "..\FleetManagement.Tests\FleetManagement.Tests.csproj", "{5A06002C-1804-417A-B6D5-D1862B8519BC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{63F9714E-ED1B-4973-B00F-D0A07C1B2FBF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{63F9714E-ED1B-4973-B00F-D0A07C1B2FBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{63F9714E-ED1B-4973-B00F-D0A07C1B2FBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{63F9714E-ED1B-4973-B00F-D0A07C1B2FBF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A06002C-1804-417A-B6D5-D1862B8519BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A06002C-1804-417A-B6D5-D1862B8519BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A06002C-1804-417A-B6D5-D1862B8519BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A06002C-1804-417A-B6D5-D1862B8519BC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3770252A-D65D-480B-BA8D-416CA160BB0F}
+	EndGlobalSection
+EndGlobal
