@@ -60,3 +60,5 @@ wwwroot/lib/
 *.swp
 *.DS_Store
 Thumbs.db
+
+dontaddtogit.cs
