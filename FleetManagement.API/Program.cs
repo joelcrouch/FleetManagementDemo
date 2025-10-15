@@ -1,7 +1,12 @@
 using FleetManagement.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using Serilog.Debugging;
+using System.Security.Cryptography.X509Certificates;
+using System.Net.Http; // <-- FIX 2: REQUIRED for HttpClientHandler/SSL Bypass
 
+
+// FIX 1: IMPLEMENT SSL BYPASS
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .MinimumLevel.Override("Microsoft.AspNetCore", Serilog.Events.LogEventLevel.Warning)
@@ -11,7 +16,20 @@ Log.Logger = new LoggerConfiguration()
         path: "logs/fleet-management-.log",
         rollingInterval: RollingInterval.Day,
         outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+    .WriteTo.EventCollector(
+        splunkHost: "https://prd-p-2ek8j.splunkcloud.com:8088", 
+        eventCollectorToken: "8a45f64d-f2c7-4683-b690-bd51eb5bbc6c",
+        // Inject the custom handler to bypass SSL check (equivalent of 'curl -k')
+        messageHandler: new HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback = (
+                HttpRequestMessage msg,
+                X509Certificate2? cert,
+                X509Chain? chain,
+                System.Net.Security.SslPolicyErrors errors) => true
+        })
     .CreateLogger();
+    
 
 try
 {
@@ -21,9 +39,12 @@ try
 
     // Add Serilog
     builder.Host.UseSerilog();
-
+    builder.Services.AddApplicationInsightsTelemetry(options =>
+    {
+        options.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+        // OR use InstrumentationKey: options.InstrumentationKey = "YOUR-INSTRUMENTATION-KEY-HERE";
+    });
     // Add services
-    //builder.Services.AddControllers();
     builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -40,11 +61,6 @@ try
     var app = builder.Build();
 
 
-    //app.UseDefaultFiles();
-    // Serve static files from wwwroot
-    app.UseStaticFiles();
-    app.MapFallbackToFile("index.html");
-
     // Configure HTTP request pipeline
     if (app.Environment.IsDevelopment())
     {
@@ -56,7 +72,15 @@ try
 
     app.UseHttpsRedirection();
     app.UseAuthorization();
+    
+    // FIX 3: Routing Order Corrected
+    // 1. Map controllers (API and Swagger)
     app.MapControllers();
+    
+    // 2. Serve static files (frontend) and use fallback
+    app.UseStaticFiles();
+    app.MapFallbackToFile("index.html");
+
 
     // Seed the database
     using (var scope = app.Services.CreateScope())
@@ -81,11 +105,44 @@ finally
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //using FleetManagement.API.Data;
 //using Microsoft.EntityFrameworkCore;
 //using Serilog;
+//using Serilog.Debugging;
+//using System.Security.Cryptography.X509Certificates;
+//using System.Net.Http;
 
-//// Configure Serilog
+
 //Log.Logger = new LoggerConfiguration()
 //    .MinimumLevel.Information()
 //    .MinimumLevel.Override("Microsoft.AspNetCore", Serilog.Events.LogEventLevel.Warning)
@@ -95,19 +152,42 @@ finally
 //        path: "logs/fleet-management-.log",
 //        rollingInterval: RollingInterval.Day,
 //        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+//    //.WriteTo.EventCollector(
+//    //    splunkHost: "https://prd-p-2ek8j.splunkcloud.com:8088", ///services/collector/event",
+//    //    //e46576c9-ed3f-4712-a1bf-26d6fc9d6dbc fro test2
+//    //    eventCollectorToken: "8a45f64d-f2c7-4683-b690-bd51eb5bbc6c")
+//    .WriteTo.EventCollector(
+//        splunkHost: "https://prd-p-2ek8j.splunkcloud.com:8088", // Corrected to base URL (safer)
+//        eventCollectorToken: "8a45f64d-f2c7-4683-b690-bd51eb5bbc6c",
+//        // Inject the custom handler to bypass SSL check (equivalent of 'curl -k')
+//        messageHandler: new HttpClientHandler
+//        {
+//            ServerCertificateCustomValidationCallback = (
+//                HttpRequestMessage msg,
+//                X509Certificate2? cert,
+//                X509Chain? chain,
+//                System.Net.Security.SslPolicyErrors errors) => true
+//        })
 //    .CreateLogger();
+    
 
 //try
 //{
 //    Log.Information("Starting Fleet Management API");
 
 //    var builder = WebApplication.CreateBuilder(args);
-//    app.UseStaticFiles();
+
 //    // Add Serilog
 //    builder.Host.UseSerilog();
 
-//    // Add services to the container
-//    builder.Services.AddControllers();
+//    // Add services
+//    //builder.Services.AddControllers();
+//    builder.Services.AddControllers()
+//    .AddJsonOptions(options =>
+//    {
+//        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+//    });
+
 //    builder.Services.AddEndpointsApiExplorer();
 //    builder.Services.AddSwaggerGen();
 
@@ -117,14 +197,19 @@ finally
 
 //    var app = builder.Build();
 
-//    // Configure the HTTP request pipeline
+
+//    //app.UseDefaultFiles();
+//    // Serve static files from wwwroot
+//    app.UseStaticFiles();
+//    app.MapFallbackToFile("index.html");
+
+//    // Configure HTTP request pipeline
 //    if (app.Environment.IsDevelopment())
 //    {
 //        app.UseSwagger();
 //        app.UseSwaggerUI();
 //    }
 
-//    // Add Serilog request logging
 //    app.UseSerilogRequestLogging();
 
 //    app.UseHttpsRedirection();
@@ -151,3 +236,5 @@ finally
 //{
 //    Log.CloseAndFlush();
 //}
+
+
