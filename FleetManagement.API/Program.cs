@@ -17,8 +17,8 @@ Log.Logger = new LoggerConfiguration()
         rollingInterval: RollingInterval.Day,
         outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
     .WriteTo.EventCollector(
-        splunkHost: "https://prd-p-2ek8j.splunkcloud.com:8088", 
-        eventCollectorToken: "8a45f64d-f2c7-4683-b690-bd51eb5bbc6c",
+        splunkHost: "realaddresshere", 
+        eventCollectorToken: "realtoken here",
         // Inject the custom handler to bypass SSL check (equivalent of 'curl -k')
         messageHandler: new HttpClientHandler
         {
