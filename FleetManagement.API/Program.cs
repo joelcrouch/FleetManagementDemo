@@ -5,7 +5,7 @@ using Serilog.Debugging;
 using System.Security.Cryptography.X509Certificates;
 using System.Net.Http; // <-- FIX 2: REQUIRED for HttpClientHandler/SSL Bypass
 using Microsoft.Extensions.Configuration;
-using Microsoft.EntityFrameworkCore;
+
 using Microsoft.EntityFrameworkCore.InMemory;
 //minimal config ot load secrests
 
