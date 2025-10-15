@@ -4,6 +4,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>b5a9656b-a838-4bc4-92ad-6353b5780ccc</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,6 +25,7 @@
 
   <ItemGroup>
     <Folder Include="DTOs\" />
+    <Folder Include="Diagnostics\" />
     <Folder Include="Services\" />
   </ItemGroup>
 

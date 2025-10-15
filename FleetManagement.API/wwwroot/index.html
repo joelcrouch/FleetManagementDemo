@@ -100,6 +100,21 @@
                 </div>
             </div>
         </div>
+
+        <!-- Database Health -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2>Database Health</h2>
+                <button class="btn btn-info mb-3" onclick="loadDatabaseHealth()">Refresh Database Health</button>
+                <div class="table-container">
+                    <div id="databaseHealthContainer">
+                        <div class="loading">
+                            <div class="spinner-border text-primary" role="status"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Add Vehicle Modal -->
@@ -160,6 +175,7 @@
             loadDashboard();
             loadVehicles();
             loadMaintenance();
+            loadDatabaseHealth(); 
         });
 
         // Load Dashboard Stats
@@ -370,6 +386,42 @@
             } catch (error) {
                 alert('Error thrown! Check your logs to see the error captured.');
             }
+        }
+
+            // Load Database Health Info
+        async function loadDatabaseHealth() {
+            const container = document.getElementById('databaseHealthContainer');
+            container.innerHTML = `
+    <div class="loading">
+        <div class="spinner-border text-primary" role="status"></div>
+    </div>
+`;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/database-health`);
+                const data = await response.json();
+
+                let html = "";
+                for (const [section, rows] of Object.entries(data)) {
+                    html += `
+            <h5 class="mt-3">${section}</h5>
+            <pre class="bg-light p-3 rounded border" style="max-height: 300px; overflow-y: auto;">
+${JSON.stringify(rows, null, 2)}
+            </pre>
+        `;
+                }
+
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading database health:', error);
+                container.innerHTML = `
+        <div class="alert alert-danger">
+            Failed to load database diagnostics. Check server logs.
+        </div>
+    `;
+            }
+        
+
         }</script>
 </body>
 </html>
