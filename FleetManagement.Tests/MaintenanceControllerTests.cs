@@ -180,7 +180,162 @@ namespace FleetManagement.Tests.Controllers
             Assert.Equal("Engine Repair", record.ServiceType);
             Assert.True(record.Id > 0);
         }
-    }
+    
+
+        
+        [Fact]
+        public async Task PutMaintenanceRecord_ReturnsNoContent_HappyPath()
+        {
+            // Arrange
+            var context = GetInMemoryContext();
+            var vehicle = new Vehicle { VIN = "123", Make = "Ford" };
+            context.Vehicles.Add(vehicle);
+            await context.SaveChangesAsync();
+
+            var originalRecord = new MaintenanceRecord { VehicleId = vehicle.Id, ServiceType = "Oil Change", Cost = 50.00m };
+            context.MaintenanceRecords.Add(originalRecord);
+            await context.SaveChangesAsync();
+
+            // *** FIX: Detach the original entity instance from the context tracker ***
+            // This allows the controller to attach the new instance with the same ID without conflict.
+            context.Entry(originalRecord).State = EntityState.Detached;
+            // ***********************************************************************
+
+            var controller = CreateController(context);
+
+            // Modify the record (ensure ID is preserved for the PUT call)
+            var updatedRecord = new MaintenanceRecord
+            {
+                Id = originalRecord.Id,
+                VehicleId = originalRecord.VehicleId,
+                ServiceType = "Major Service", // CHANGE
+                Cost = 500.00m,                // CHANGE
+                ServiceDate = originalRecord.ServiceDate,
+                MileageAtService = originalRecord.MileageAtService,
+            };
+
+            // Act
+            var result = await controller.PutMaintenanceRecord(originalRecord.Id, updatedRecord);
+
+            // Assert
+            Assert.IsType<NoContentResult>(result);
+
+            // Verify the update in the database by querying a fresh copy
+            var recordInDb = await context.MaintenanceRecords.FindAsync(originalRecord.Id);
+            Assert.Equal("Major Service", recordInDb.ServiceType);
+            Assert.Equal(500.00m, recordInDb.Cost);
+        }
+        //public async Task PutMaintenanceRecord_ReturnsNoContent_HappyPath()
+        //{
+        //    // Arrange
+        //    var context = GetInMemoryContext();
+        //    var vehicle = new Vehicle { VIN = "123", Make = "Ford" };
+        //    context.Vehicles.Add(vehicle);
+        //    await context.SaveChangesAsync();
+
+        //    var originalRecord = new MaintenanceRecord { VehicleId = vehicle.Id, ServiceType = "Oil Change", Cost = 50.00m };
+        //    context.MaintenanceRecords.Add(originalRecord);
+        //    await context.SaveChangesAsync();
+
+        //    var controller = CreateController(context);
+
+        //    // Modify the record
+        //    var updatedRecord = new MaintenanceRecord
+        //    {
+        //        Id = originalRecord.Id,
+        //        VehicleId = originalRecord.VehicleId,
+        //        ServiceType = "Major Service", // CHANGE
+        //        Cost = 500.00m,                // CHANGE
+        //        ServiceDate = originalRecord.ServiceDate,
+        //        MileageAtService = originalRecord.MileageAtService,
+        //    };
+
+        //    // Act
+        //    var result = await controller.PutMaintenanceRecord(originalRecord.Id, updatedRecord);
+
+        //    // Assert
+        //    Assert.IsType<NoContentResult>(result);
+
+        //    // Verify the update in the database
+        //    var recordInDb = await context.MaintenanceRecords.FindAsync(originalRecord.Id);
+        //    Assert.Equal("Major Service", recordInDb.ServiceType);
+        //    Assert.Equal(500.00m, recordInDb.Cost);
+        //}
+
+        [Fact]
+        public async Task PutMaintenanceRecord_ReturnsBadRequest_WhenIdMismatch()
+        {
+            // Arrange
+            var context = GetInMemoryContext();
+            var controller = CreateController(context);
+
+            var record = new MaintenanceRecord { Id = 10, ServiceType = "Test" };
+
+            // Act: Passing ID 5, but record ID is 10
+            var result = await controller.PutMaintenanceRecord(5, record);
+
+            // Assert
+            Assert.IsType<BadRequestResult>(result);
+        }
+
+        [Fact]
+        public async Task PutMaintenanceRecord_ReturnsNotFound_WhenRecordDoesNotExist()
+        {
+            // Arrange
+            var context = GetInMemoryContext();
+            var controller = CreateController(context);
+
+            var nonExistentRecord = new MaintenanceRecord { Id = 999, ServiceType = "Missing" };
+
+            // Act
+            // Attempt to update a record that does not exist. The DbUpdateConcurrencyException will be caught,
+            // and the fallback check will confirm it's not found.
+            var result = await controller.PutMaintenanceRecord(999, nonExistentRecord);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result);
+        }
+
+        [Fact]
+        public async Task DeleteMaintenanceRecord_ReturnsNoContent_HappyPath()
+        {
+            // Arrange
+            var context = GetInMemoryContext();
+            var vehicle = new Vehicle { VIN = "123", Make = "Ford" };
+            context.Vehicles.Add(vehicle);
+            await context.SaveChangesAsync();
+
+            var recordToDelete = new MaintenanceRecord { VehicleId = vehicle.Id, ServiceType = "Tires", Cost = 100.00m };
+            context.MaintenanceRecords.Add(recordToDelete);
+            await context.SaveChangesAsync();
+
+            var controller = CreateController(context);
+            var recordId = recordToDelete.Id;
+
+            // Act
+            var result = await controller.DeleteMaintenanceRecord(recordId);
+
+            // Assert
+            Assert.IsType<NoContentResult>(result);
+
+            // Verify the record is gone from the database
+            Assert.Null(await context.MaintenanceRecords.FindAsync(recordId));
+        }
+
+        [Fact]
+        public async Task DeleteMaintenanceRecord_ReturnsNotFound_WhenRecordDoesNotExist()
+        {
+            // Arrange
+            var context = GetInMemoryContext();
+            var controller = CreateController(context);
+
+            // Act
+            var result = await controller.DeleteMaintenanceRecord(999);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result);
+        }
+}
 }
 
 

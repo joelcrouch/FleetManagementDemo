@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat Code Coverage" uri="datacollector://Microsoft/Coverlet/1.0" assemblyQualifiedName="Coverlet.Collector.DataCollection.CoverletTestCollector, coverlet.collector, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <Configuration>
+          <ExcludeByFile>
+            <ExcludeByFile>**/Migrations/*.cs</ExcludeByFile>
+            <ExcludeByFile>**/*ModelSnapshot.cs</ExcludeByFile>
+            <ExcludeByFile>**/*Context.cs</ExcludeByFile>
+            <ExcludeByFile>**/*ContextFactory.cs</ExcludeByFile>
+            <ExcludeByFile>**/*DbInitializer.cs</ExcludeByFile>
+          </ExcludeByFile>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>
